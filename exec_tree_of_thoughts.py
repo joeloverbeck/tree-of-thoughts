@@ -1,6 +1,9 @@
 import argparse
+from colorama import Fore
+from errors import RequestToAiModelFailedError
 
 from json_utils import convert_raw_json_data, load_tree_of_thoughts
+from output import output_message
 from tree_of_thought_handler import TreeOfThoughtsHandler
 
 
@@ -30,7 +33,14 @@ def main():
     tree_of_thoughts_handler.activate_visual_output()
     tree_of_thoughts_handler.activate_create_files()
 
-    tree_of_thoughts_handler.handle_tree_of_thoughts()
+    try:
+        tree_of_thoughts_handler.handle_tree_of_thoughts()
+    except RequestToAiModelFailedError as exception:
+        output_message(
+            Fore.LIGHTRED_EX,
+            f"Execution of the tree of thoughts failed while requesting a response from the AI model: {exception}",
+            True,
+        )
 
 
 if __name__ == "__main__":
