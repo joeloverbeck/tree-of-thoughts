@@ -1,6 +1,7 @@
 import unittest
 
 from anytree import Node
+from defines import DOUBLE_RETURNS
 from enums import StateType
 
 from responses import create_prompt_for_response
@@ -24,7 +25,10 @@ class TestResponses(unittest.TestCase):
 
         prompt = create_prompt_for_response(unresolved_leaf_node)
 
-        self.assertEqual(prompt, "Unresolved leaf node context.\n\nParent node response.\n\nState related text.")
+        self.assertEqual(
+            prompt,
+            f"Unresolved leaf node context.{DOUBLE_RETURNS}Parent node response.{DOUBLE_RETURNS}State related text.",
+        )
 
 
 if __name__ == "__main__":

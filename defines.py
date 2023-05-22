@@ -1,3 +1,10 @@
+MIN_NUMBER_OF_STEPS = 1
+MAX_NUMBER_OF_STEPS = 10
+
+VOTING_STRING_FOR_AI_MODEL = "The best answer is number X"
+
+DOUBLE_RETURNS = "\n\n"
+
 INSTRUCT_GPT_PROMPT_HEADER = "Question. "
 INSTRUCT_GPT_PROMPT_ANSWER_OPENING = (
     " Answer: Let's try to work out the answer step by step: "

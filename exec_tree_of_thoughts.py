@@ -1,10 +1,12 @@
 import argparse
 from colorama import Fore
+from enums import StateType
 from errors import RequestToAiModelFailedError
 
 from json_utils import convert_raw_json_data, load_tree_of_thoughts
 from output import output_message
-from tree_of_thought_handler import TreeOfThoughtsHandler
+from state import State
+from tree_of_thoughts import TreeOfThoughts
 
 
 def main():
@@ -26,15 +28,19 @@ def main():
         args.tree_of_thoughts_name, load_tree_of_thoughts(args.tree_of_thoughts_name)
     )
 
-    tree_of_thoughts_handler = TreeOfThoughtsHandler(
-        args.tree_of_thoughts_name, json_data
+    tree_of_thoughts = TreeOfThoughts(
+        args.tree_of_thoughts_name,
+        State(json_data["context"], StateType.CONTEXT),
+        json_data["state_layers"],
+        json_data["number_of_steps"],
+        json_data["breadth"],
     )
 
-    tree_of_thoughts_handler.activate_visual_output()
-    tree_of_thoughts_handler.activate_create_files()
+    tree_of_thoughts.activate_visual_output()
+    tree_of_thoughts.activate_create_files()
 
     try:
-        tree_of_thoughts_handler.handle_tree_of_thoughts()
+        tree_of_thoughts.process_tree_of_thoughts()
     except RequestToAiModelFailedError as exception:
         output_message(
             Fore.LIGHTRED_EX,

@@ -1,7 +1,3 @@
-class MissingStateRelatedTextError(Exception):
-    pass
-
-
 class MissingContextFileError(Exception):
     pass
 

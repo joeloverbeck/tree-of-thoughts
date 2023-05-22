@@ -1,8 +1,10 @@
 import argparse
 from defines import INSTRUCT_GPT_PROMPT_ANSWER_OPENING, INSTRUCT_GPT_PROMPT_HEADER
+from enums import StateType
 
 from json_utils import convert_raw_json_data, load_tree_of_thoughts
-from tree_of_thought_handler import TreeOfThoughtsHandler
+from state import State
+from tree_of_thoughts import TreeOfThoughts
 
 
 def main():
@@ -24,23 +26,27 @@ def main():
         args.tree_of_thoughts_name, load_tree_of_thoughts(args.tree_of_thoughts_name)
     )
 
-    tree_of_thoughts_handler = TreeOfThoughtsHandler(
-        args.tree_of_thoughts_name, json_data
+    tree_of_thoughts = TreeOfThoughts(
+        args.tree_of_thoughts_name,
+        State(json_data["context"], StateType.CONTEXT),
+        json_data["state_layers"],
+        json_data["number_of_steps"],
+        json_data["breadth"],
     )
 
-    tree_of_thoughts_handler.activate_visual_output()
-    tree_of_thoughts_handler.activate_create_files()
+    tree_of_thoughts.activate_visual_output()
+    tree_of_thoughts.activate_create_files()
 
     def user_input_request_response_function(prompt):
         return input(
             f"\n{INSTRUCT_GPT_PROMPT_HEADER}{prompt}{INSTRUCT_GPT_PROMPT_ANSWER_OPENING}\n"
         )
 
-    tree_of_thoughts_handler.set_request_response_from_ai_model_function(
+    tree_of_thoughts.set_request_response_from_ai_model_function(
         user_input_request_response_function
     )
 
-    tree_of_thoughts_handler.handle_tree_of_thoughts()
+    tree_of_thoughts.process_tree_of_thoughts()
 
 
 if __name__ == "__main__":
