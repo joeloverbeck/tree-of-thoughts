@@ -36,6 +36,12 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
+# Open AI API key
+api_key.txt
+
+# Personal
+trees_of_thoughts/develop_scene*
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
