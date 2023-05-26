@@ -1,6 +1,8 @@
 MIN_NUMBER_OF_STEPS = 1
 MAX_NUMBER_OF_STEPS = 10
 
+AI_MODEL = "gpt-4"
+
 VOTING_STRING_FOR_AI_MODEL = "The best answer is number X"
 
 DOUBLE_RETURNS = "\n\n"
