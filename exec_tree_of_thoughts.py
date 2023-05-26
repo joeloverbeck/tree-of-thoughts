@@ -1,7 +1,7 @@
 import argparse
 from colorama import Fore
 from enums import StateType
-from errors import RequestToAiModelFailedError
+from errors import InvalidStateTypeError, RequestToAiModelFailedError
 
 from json_utils import convert_raw_json_data, load_tree_of_thoughts
 from output import output_message
@@ -24,9 +24,14 @@ def main():
         print("Error: The name of the tree of thoughts cannot be empty")
         return None
 
-    json_data = convert_raw_json_data(
-        args.tree_of_thoughts_name, load_tree_of_thoughts(args.tree_of_thoughts_name)
-    )
+    try:
+        json_data = convert_raw_json_data(
+            args.tree_of_thoughts_name,
+            load_tree_of_thoughts(args.tree_of_thoughts_name),
+        )
+    except InvalidStateTypeError as exception:
+        print(f"Error:\n{exception}")
+        return
 
     tree_of_thoughts = TreeOfThoughts(
         args.tree_of_thoughts_name,
