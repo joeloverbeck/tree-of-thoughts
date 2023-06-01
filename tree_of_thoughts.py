@@ -8,7 +8,7 @@ from defines import (
     MIN_NUMBER_OF_STEPS,
     get_directory_path_for_tree_of_thoughts,
 )
-from enums import StateType
+from enums.state_type import StateType
 from errors import (
     InvalidParameterError,
 )
@@ -17,7 +17,7 @@ from file_utils import (
     create_file_path_for_winner,
     write_response_to_file,
 )
-from responses import request_responses
+from responses.requesting import request_responses
 from state import State
 from tree import Tree
 from voting import determine_winners
@@ -118,12 +118,17 @@ class TreeOfThoughts:
         state_type_of_last_winners = StateType.CONTEXT
 
         while self._queue:
-            current_state_type, text = self._queue.popleft()
+            state_layer = self._queue.popleft()
+
+            if not isinstance(state_layer, dict):
+                error_message = f"The function '{self.process_tree_of_thoughts.__name__}' expected the popped value of the queue to be a dict, but it was: {state_layer}"
+                raise ValueError(error_message)
 
             self._tree.add_state_type(
-                current_state_type,
+                state_layer["state_type"],
                 state_type_of_last_winners,
-                text,
+                state_layer["state_type_text"],
+                state_layer["include_ancestor_state_type_response"],
                 self._number_of_steps,
                 self._breadth,
             )
@@ -145,8 +150,8 @@ class TreeOfThoughts:
             )
 
             self._create_files_for_winners(
-                self._tree.get_winners_of_type(current_state_type, self._breadth)
+                self._tree.get_winners_of_type(state_layer["state_type"], self._breadth)
             )
 
             # Set state type of these winners
-            state_type_of_last_winners = current_state_type
+            state_type_of_last_winners = state_layer["state_type"]

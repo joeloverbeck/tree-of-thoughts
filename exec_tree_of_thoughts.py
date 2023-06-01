@@ -1,6 +1,6 @@
 import argparse
 from colorama import Fore
-from enums import StateType
+from enums.state_type import StateType
 from errors import InvalidStateTypeError, RequestToAiModelFailedError
 
 from json_utils import convert_raw_json_data, load_tree_of_thoughts
@@ -31,6 +31,9 @@ def main():
         )
     except InvalidStateTypeError as exception:
         print(f"Error:\n{exception}")
+        return
+    except UnicodeDecodeError as exception:
+        print(f"There are invalid characters in the json file. Error: {exception}")
         return
 
     tree_of_thoughts = TreeOfThoughts(

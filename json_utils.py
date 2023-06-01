@@ -2,7 +2,7 @@ import os
 import json
 
 from defines import TREES_OF_THOUGHTS_DIRECTORY
-from enums import StateType
+from enums.state_type import StateType
 from errors import InvalidStateTypeError, MissingContextFileError
 from file_utils import read_contents_of_file_if_it_exists
 
@@ -48,14 +48,30 @@ def convert_raw_json_data(tree_of_thoughts_name: str, raw_json_data: dict) -> di
     converted_json_data["breadth"] = int(converted_json_data["breadth"])
 
     for i, state_layer in enumerate(converted_json_data["state_layers"]):
-        state_type_str, state_text = state_layer
         try:
-            state_type_enum = StateType[state_type_str]
+            state_type_enum = StateType[state_layer["state_type"]]
         except KeyError as exception:
-            error_message = f"Failed to convert the raw json data to the program structures because the state type '{state_type_str}' is unrecognized.\n"
+            error_message = f"Failed to convert the raw json data to the program structures because the state type '{state_layer['state_type']}' is unrecognized.\n"
             error_message += f"Fix the json file of your tree of thoughts named '{tree_of_thoughts_name}'."
             raise InvalidStateTypeError(error_message) from exception
 
-        converted_json_data["state_layers"][i] = (state_type_enum, state_text)
+        # We also need to convert 'include_ancestor_state_type_response' to the corresponding state type, if not None.
+        include_ancestor_state_type_response = None
+
+        if state_layer["include_ancestor_state_type_response"] is not None:
+            try:
+                include_ancestor_state_type_response = StateType[
+                    state_layer["include_ancestor_state_type_response"]
+                ]
+            except KeyError as exception:
+                error_message = f"Failed to convert the raw json data to the program structures because the state type '{state_layer['include_ancestor_state_type_response']}'"
+                error_message += f" is unrecognized.\nFix the json file of your tree of thoughts named '{tree_of_thoughts_name}'."
+                raise InvalidStateTypeError(error_message) from exception
+
+        converted_json_data["state_layers"][i] = {
+            "state_type": state_type_enum,
+            "state_type_text": state_layer["state_type_text"],
+            "include_ancestor_state_type_response": include_ancestor_state_type_response,
+        }
 
     return converted_json_data

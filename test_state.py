@@ -1,5 +1,5 @@
 import unittest
-from enums import StateType
+from enums.state_type import StateType
 
 from state import State
 

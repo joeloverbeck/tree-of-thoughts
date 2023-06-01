@@ -1,7 +1,7 @@
 """This module contains the class Tree, that handles the nodes and links of a tree of thoughts.
 """
 from anytree import Node
-from enums import StateType
+from enums.state_type import StateType
 from errors import InvalidParameterError
 from node_utils import create_child_state_node
 
@@ -54,6 +54,7 @@ class Tree:
         state_type_of_new_state: StateType,
         state_type_of_last_winners: StateType,
         state_type_related_text: str,
+        include_ancestor_state_type_response: StateType | None,
         number_of_steps: int,
         breadth: int,
     ) -> None:
@@ -63,6 +64,7 @@ class Tree:
             state_type_of_new_state (StateType): the state type that the new state will have
             state_type_of_last_winners (StateType): the state type of the last layer of winners
             state_type_related_text (str): the text associated with the new type of state
+            include_ancestor_state_type_response (StateType | None): whether or not the response of an ancestor should be included in the prompt.
             number_of_steps (int): the number of steps that this layer of states will have
             breadth (int): now many winners will be picked among those voted the most
         """
@@ -71,7 +73,10 @@ class Tree:
         for winner in winners:
             for _ in range(number_of_steps):
                 create_child_state_node(
-                    state_type_of_new_state, state_type_related_text, winner
+                    state_type_of_new_state,
+                    state_type_related_text,
+                    include_ancestor_state_type_response,
+                    winner,
                 )
 
     def get_unresolved_leaf_nodes_with_responses(self) -> list[Node]:

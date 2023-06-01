@@ -3,89 +3,14 @@
 from typing import Callable
 from anytree import Node
 from colorama import Fore
-from defines import DOUBLE_RETURNS, get_directory_path_for_tree_of_thoughts
-from enums import StateType
+from defines import get_directory_path_for_tree_of_thoughts
 from errors import InvalidParameterError
 from file_utils import (
     create_directories,
     create_file_path_for_response,
-    read_contents_of_file_if_it_exists,
-    write_response_to_file,
 )
 from output import output_message
-
-
-def create_prompt_for_response(unresolved_leaf_node: Node) -> str:
-    """Creates a prompt to generate a response from the AI model.
-
-    Args:
-        unresolved_leaf_node (Node): an unresolved leaf node from the tree
-
-    Returns:
-        str: the prompt that will be sent to the AI model.
-
-    Raises:
-        InvalidParameterError: if 'unresolved_leaf_node' is not a node
-    """
-    if not isinstance(unresolved_leaf_node, Node):
-        raise InvalidParameterError(
-            f"The function {create_file_path_for_response.__name__} received an 'unresolved_leaf_node' that wasn't a Node: {unresolved_leaf_node}"
-        )
-
-    prompt = f"{unresolved_leaf_node.name.get_context()}"
-
-    # Must add to the prompt the response of this node's parent.
-    if unresolved_leaf_node.parent.name.get_state_type() != StateType.CONTEXT:
-        prompt += f"{DOUBLE_RETURNS}{unresolved_leaf_node.parent.name.get_response()}"
-
-    if unresolved_leaf_node.name.get_state_type() != StateType.CONTEXT:
-        prompt += (
-            f"{DOUBLE_RETURNS}{unresolved_leaf_node.name.get_state_type_related_text()}"
-        )
-
-    return prompt
-
-
-def determine_response_for_node(
-    unresolved_leaf_node: Node,
-    file_path: str,
-    should_create_files: bool,
-    request_response_from_ai_model_function: Callable[[str], str],
-) -> str:
-    """Determines a response for an unresolved leaf node, relying on the AI model.
-
-    Args:
-        unresolved_leaf_node (Node): the unresolved leaf node for which a response will be requested
-        file_path (str): the file path where the response should be saved to file
-        should_create_files (bool): whether or not a file should be created for this response
-        request_response_from_ai_model_function (Callable[[str], str]): the function that will request a response from the AI model
-
-    Returns:
-        str: the response received from the AI model
-
-    Raises:
-        InvalidParameterError: if 'unresolved_leaf_node' is not a node
-    """
-    if not isinstance(unresolved_leaf_node, Node):
-        raise InvalidParameterError(
-            f"The function {determine_response_for_node.__name__} received an 'unresolved_leaf_node' that wasn't a Node: {unresolved_leaf_node}"
-        )
-
-    response = None
-
-    if should_create_files:
-        response = read_contents_of_file_if_it_exists(file_path)
-
-    if response is None:
-        response = request_response_from_ai_model_function(
-            create_prompt_for_response(unresolved_leaf_node)
-        )
-
-        # Write the response to a file
-        if should_create_files:
-            write_response_to_file(file_path, response)
-
-    return response
+from responses.response_determination import determine_response_for_node
 
 
 def request_responses(

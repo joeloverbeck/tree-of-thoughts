@@ -1,5 +1,5 @@
 import unittest
-from enums import StateType
+from enums.state_type import StateType
 from json_utils import convert_raw_json_data
 
 
@@ -10,8 +10,16 @@ class TestJsonUtils(unittest.TestCase):
             "number_of_steps": "5",
             "breadth": "1",
             "state_layers": [
-                ("PLANNING", "Planning text"),
-                ("IMPLEMENTATION", "Implementation text"),
+                {
+                    "state_type": "PLANNING",
+                    "state_type_text": "Planning text",
+                    "include_ancestor_state_type_response": None,
+                },
+                {
+                    "state_type": "IMPLEMENTATION",
+                    "state_type_text": "Implementation text",
+                    "include_ancestor_state_type_response": None,
+                },
             ],
         }
 
@@ -22,13 +30,13 @@ class TestJsonUtils(unittest.TestCase):
 
         planning_layer = json_data["state_layers"][0]
 
-        self.assertEqual(planning_layer[0], StateType.PLANNING)
-        self.assertEqual(planning_layer[1], "Planning text")
+        self.assertEqual(planning_layer["state_type"], StateType.PLANNING)
+        self.assertEqual(planning_layer["state_type_text"], "Planning text")
 
         implementation_layer = json_data["state_layers"][1]
 
-        self.assertEqual(implementation_layer[0], StateType.IMPLEMENTATION)
-        self.assertEqual(implementation_layer[1], "Implementation text")
+        self.assertEqual(implementation_layer["state_type"], StateType.IMPLEMENTATION)
+        self.assertEqual(implementation_layer["state_type_text"], "Implementation text")
 
 
 if __name__ == "__main__":

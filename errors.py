@@ -13,5 +13,6 @@ class RequestToAiModelFailedError(Exception):
 class UnableToExtractVoteFromResponse(Exception):
     pass
 
+
 class InvalidStateTypeError(Exception):
     pass

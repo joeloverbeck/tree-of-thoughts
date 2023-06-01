@@ -4,7 +4,6 @@ from defines import (
     INSTRUCT_GPT_PROMPT_ANSWER_OPENING,
     INSTRUCT_GPT_PROMPT_HEADER,
 )
-from errors import RequestToAiModelFailedError
 
 
 def request_response_from_ai_model(prompt):

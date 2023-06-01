@@ -2,9 +2,9 @@ import unittest
 
 from anytree import Node
 from defines import DOUBLE_RETURNS
-from enums import StateType
+from enums.state_type import StateType
+from responses.prompt_creation import create_prompt_for_response
 
-from responses import create_prompt_for_response
 from state import State
 
 

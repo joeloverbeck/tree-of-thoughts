@@ -1,4 +1,4 @@
-from enums import StateType
+from enums.state_type import StateType
 
 
 class State:
@@ -7,6 +7,7 @@ class State:
         self._state_type = state_type
 
         self._state_type_related_text = None
+        self._include_ancestor_state_type_response = None
 
         self._response = None
 
@@ -29,6 +30,16 @@ class State:
 
     def get_state_type_related_text(self):
         return self._state_type_related_text
+
+    def get_include_ancestor_state_type_response(self):
+        return self._include_ancestor_state_type_response
+
+    def set_include_ancestor_state_type_response(
+        self, include_ancestor_state_type_response
+    ):
+        self._include_ancestor_state_type_response = (
+            include_ancestor_state_type_response
+        )
 
     def has_response(self):
         if self._response is None:
