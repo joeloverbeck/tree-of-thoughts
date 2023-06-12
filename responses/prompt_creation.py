@@ -3,55 +3,34 @@ from defines import DOUBLE_RETURNS
 from enums.state_type import StateType
 from errors import InvalidParameterError
 from file_utils import create_file_path_for_response
+from responses.ancestor_responses import (
+    determine_if_an_ancestor_response_should_be_included,
+)
 
 
-def determine_ancestor_with_required_state_type(
-    unresolved_leaf_node: Node,
-) -> Node | None:
-    """Determines which is the ancestor with the required state type, according to
-    the attribte 'include_ancestor_state_type_response' already set in the State.
-
-    Args:
-        unresolved_leaf_node (Node): a node that contains a state.
-
-    Returns:
-        Node | None: either the corresponding ancestor node or None
-    """
-    required_state_type = (
-        unresolved_leaf_node.name.get_include_ancestor_state_type_response()
-    )
-
-    for ancestor in unresolved_leaf_node.ancestors:
-        if ancestor.name.get_state_type() == required_state_type:
-            return ancestor
-
-    return None
-
-
-def determine_if_an_ancestor_response_should_be_included(
+def add_to_prompt_the_response_of_parent(
     unresolved_leaf_node: Node, prompt: str
-):
-    """Determines if an ancestor's response should be included in the prompt, and if so,
-    includes it in the prompt
+) -> str:
+    """Adds to the prompt the response of the unresolved leaf node's parent.
 
     Args:
         unresolved_leaf_node (Node): the unresolved leaf node.
-        prompt (str): the prompt that will eventually be sent to an AI model for a response.
+        prompt (str): the prompt.
+
+    Raises:
+        ValueError: if the parent's response is None.
+
+    Returns:
+        str: the prompt, now including the parent's response.
     """
-    include_ancestor_state_type_response = (
-        unresolved_leaf_node.name.get_include_ancestor_state_type_response()
-    )
+    if unresolved_leaf_node.parent.name.get_response() is None:
+        error_message = "When attempting to add to a prompt the response from the current node's parent, "
+        error_message += f"found that the parent didn't have a response associated. Parent: {unresolved_leaf_node.parent}"
+        raise ValueError(error_message)
 
-    if include_ancestor_state_type_response is not None:
-        # We must find in the ancestors of 'unresolved_leaf_node.name' a node that contains a state with the type 'include_ancestor_state_type_response'
-        ancestor_with_required_state_type = determine_ancestor_with_required_state_type(
-            unresolved_leaf_node
-        )
+    prompt += f"{DOUBLE_RETURNS}{unresolved_leaf_node.parent.name.get_response()}"
 
-        # if the ancestor has been found, add his response to the prompt.
-        if ancestor_with_required_state_type is not None:
-            prompt += f"{DOUBLE_RETURNS}{ancestor_with_required_state_type.name.get_state_type().name}:"
-            prompt += f"{DOUBLE_RETURNS}{ancestor_with_required_state_type.name.get_response()}"
+    return prompt
 
 
 def create_prompt_for_response(unresolved_leaf_node: Node) -> str:
@@ -71,13 +50,17 @@ def create_prompt_for_response(unresolved_leaf_node: Node) -> str:
             f"The function {create_file_path_for_response.__name__} received an 'unresolved_leaf_node' that wasn't a Node: {unresolved_leaf_node}"
         )
 
-    prompt = f"{unresolved_leaf_node.name.get_context()}"
+    if unresolved_leaf_node.name.get_context() is None:
+        error_message = "When attempting to create the prompt for a response, found that the unresolved leaf node doesn't have a context set: "
+        error_message += f"{unresolved_leaf_node}"
+        raise ValueError(error_message)
 
-    determine_if_an_ancestor_response_should_be_included(unresolved_leaf_node, prompt)
+    prompt = determine_if_an_ancestor_response_should_be_included(
+        unresolved_leaf_node, f"{unresolved_leaf_node.name.get_context()}"
+    )
 
-    # Must add to the prompt the response of this node's parent.
     if unresolved_leaf_node.parent.name.get_state_type() != StateType.CONTEXT:
-        prompt += f"{DOUBLE_RETURNS}{unresolved_leaf_node.parent.name.get_response()}"
+        prompt = add_to_prompt_the_response_of_parent(unresolved_leaf_node, prompt)
 
     if unresolved_leaf_node.name.get_state_type() != StateType.CONTEXT:
         prompt += (

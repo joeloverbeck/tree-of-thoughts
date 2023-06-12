@@ -1,4 +1,6 @@
+from types import NoneType
 from enums.state_type import StateType
+from errors import InvalidParameterError
 
 
 class State:
@@ -37,6 +39,13 @@ class State:
     def set_include_ancestor_state_type_response(
         self, include_ancestor_state_type_response
     ):
+        if not isinstance(
+            include_ancestor_state_type_response, StateType
+        ) and not isinstance(include_ancestor_state_type_response, NoneType):
+            raise InvalidParameterError(
+                f"Attempted to set 'include_ancestor_state_type_response' that was neither a StateType nor None: {include_ancestor_state_type_response}"
+            )
+
         self._include_ancestor_state_type_response = (
             include_ancestor_state_type_response
         )

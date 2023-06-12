@@ -16,3 +16,7 @@ class UnableToExtractVoteFromResponse(Exception):
 
 class InvalidStateTypeError(Exception):
     pass
+
+
+class AncestorStateTypeNotFoundError(Exception):
+    pass
